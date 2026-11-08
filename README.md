@@ -3,7 +3,7 @@
 适用对象：自建聊天前端（消息存在自己的数据库里、报文由自己的服务端拼装）、多窗口构造的开发者。
 如果你已经有成熟的随对话写入式记忆系统，可能不需要这套。滚动摘要解决的是"记住当前窗口的连续叙事"——RAG 召回负责的是条目式记忆，而摘要是有时间连续性、有画面和变化过程的叙事，两者互补而不互替。
 
-本仓库开源思路与架构。摘要 prompt 请按自己的需求撰写，本仓库不提供成品 prompt（见 LICENSE）。
+本仓库公开分享思路与架构（文档采用保留权利的许可，并非开源协议，见 LICENSE）。摘要 prompt 请按自己的需求撰写，本仓库不提供成品 prompt（见 LICENSE）。
 
 📝 作者的手写原版教程见 [handwritten.md](./handwritten.md)（小潜手写版）——本 README 是它的整理扩写版。
 
@@ -105,7 +105,7 @@ function buildRequest(convId, userMsg) {
   const history = db.all(`SELECT role, content FROM messages
                           WHERE conv_id=? AND id > anchorOf(convId) ORDER BY id`); // 断点4
   const last = history[history.length - 1];
-  last.content += liveInject() + STYLE_TAG;       // 时间/天气等注入+风格标签: 只进报文, 不落库
+  last.content += liveInject() + STYLE_TAG;       // 时间/天气等注入 + style标签: 只进报文, 不落库
   return {
     system: [PROFILE, TOOL_DEFS, summary],        // 断点1/2/3
     messages: history                              // 断点4
@@ -113,4 +113,4 @@ function buildRequest(convId, userMsg) {
 }
 ```
 
-要点回顾：裁剪与摘要**异步**进行（本轮不等待）；`summaries` 只增不覆盖，天然形成可回滚的摘要库；注入与风格标签**永不落库**，数据库里永远是干净原文。
+要点回顾：裁剪与摘要**异步**进行（本轮不等待）；`summaries` 只增不覆盖，天然形成可回滚的摘要库；注入与 style 标签**永不落库**，数据库里永远是干净原文。
