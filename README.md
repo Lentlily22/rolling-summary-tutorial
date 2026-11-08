@@ -5,6 +5,8 @@
 
 本仓库开源思路与架构。摘要 prompt 请按自己的需求撰写，本仓库不提供成品 prompt（见 LICENSE）。
 
+📝 作者的手写原版教程见 [handwritten.md](./handwritten.md)（小潜手写版）——本 README 是它的整理扩写版。
+
 ## 一、滞回裁剪
 
 朴素做法的问题：固定保留最近 N 条，每来一轮最旧一条就滑走，报文头部每轮都变，**前缀缓存全部失效**。
@@ -57,3 +59,58 @@ profile                  → 断点1（不变，长期命中）
 - **三明治指令**：总结要求在材料的开头和结尾各写一次。模型读完超长对话后会忘记任务。
 - 篇幅控制写在指令里（"约 3000 字"），**不要用 max_tokens 压字数**——那是截断，不是收敛。较弱的模型会忽略字数要求，属于模型问题。
 - 时间戳随消息一起喂，摘要会自然带上日期。
+
+## 六、参考实现（伪代码）
+
+以下为通用示意，与任何具体项目无关。消息表假设为 `messages(id, conv_id, role, content, created_at)`，窗口锚点与摘要各存一处（如 `conversations.anchor_id` 与 `summaries` 表）。
+
+### 滞回裁剪
+
+```js
+const LOW = 20, HIGH = 40;
+function maybeTrim(convId) {
+  const n = db.get(`SELECT COUNT(*) c FROM messages
+                    WHERE conv_id=? AND id > anchorOf(convId)`, convId).c;
+  if (n < HIGH) return;                       // 未到上限, 锚点不动, 缓存继续命中
+  const rows = db.all(`SELECT id, role, content, created_at FROM messages
+                       WHERE conv_id=? AND id > anchorOf(convId)
+                       ORDER BY id LIMIT ?`, convId, HIGH - LOW); // 最旧的20条
+  const newAnchor = rows[rows.length - 1].id; // 新锚点 = 被裁段的最后一条
+  enqueueSummaryJob(convId, rows, newAnchor); // 异步做摘要, 不阻塞本轮回复
+}
+```
+
+### 摘要任务（含缝份）
+
+```js
+async function summaryJob(convId, trimmedRows, newAnchor) {
+  const prev = db.get(`SELECT content, seam_tail FROM summaries
+                       WHERE conv_id=? ORDER BY id DESC LIMIT 1`, convId);
+  const material =
+    (prev ? '[旧摘要]\n' + prev.content + '\n\n[缝份·上次裁剪的最后2条]\n' + prev.seam_tail : '') +
+    '\n\n[新裁剪的对话原文]\n' + renderWithTimestamps(trimmedRows);
+  const text = await llm(SUMMARY_PROMPT_HEAD + material + SUMMARY_PROMPT_TAIL); // 三明治指令
+  db.run(`INSERT INTO summaries (conv_id, content, seam_tail, anchor_id)
+          VALUES (?,?,?,?)`,                       // 只增不覆盖 = 自带摘要库
+         convId, text, renderWithTimestamps(trimmedRows.slice(-2)), newAnchor);
+  db.run(`UPDATE conversations SET anchor_id=? WHERE id=?`, newAnchor, convId);
+}
+```
+
+### 报文拼装（断点顺序）
+
+```js
+function buildRequest(convId, userMsg) {
+  const summary = latestSummary(convId);          // 断点3
+  const history = db.all(`SELECT role, content FROM messages
+                          WHERE conv_id=? AND id > anchorOf(convId) ORDER BY id`); // 断点4
+  const last = history[history.length - 1];
+  last.content += liveInject() + STYLE_TAG;       // 时间/天气等注入+风格标签: 只进报文, 不落库
+  return {
+    system: [PROFILE, TOOL_DEFS, summary],        // 断点1/2/3
+    messages: history                              // 断点4
+  };
+}
+```
+
+要点回顾：裁剪与摘要**异步**进行（本轮不等待）；`summaries` 只增不覆盖，天然形成可回滚的摘要库；注入与风格标签**永不落库**，数据库里永远是干净原文。
