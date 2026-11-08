@@ -1,15 +1,14 @@
-# 许可声明 / License
+# 许可 / License
 
-Copyright (c) 2026 林潜 (Lin Qian)。保留所有权利。All rights reserved.
+本仓库的教程文本（README.md、handwritten.md）采用
+**[CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh-hans)**
+（署名 — 非商业性使用 — 相同方式共享 4.0 国际）许可。
 
-本仓库内容（教程文本、架构图示及其手写原稿）依下列条款提供：
+通俗地说：
+- **可以**：阅读、转发、引用、在此基础上修改创作——不需要事先询问。
+- **必须**：注明原作者（林潜 / Lentlily22）与出处链接；改编版须说明改动、并以相同许可免费共享。
+- **不可以**：任何商业用途（付费课程、付费专栏、商业产品等）；抹去出处将内容据为己有。
 
-1. **允许**：个人阅读、学习，以及在自己的非商业项目中参考其思路与架构实现代码。
-2. **禁止商用**：不得将本仓库内容用于任何商业目的（包括但不限于付费课程、付费专栏、商业产品文档）。
-3. **转载须授权**：未经作者事先书面许可，不得全文或部分转载、搬运至其他平台（包括截图形式）。
-4. **二改须授权**：未经作者事先书面许可，不得修改、改编、翻译后发布本仓库内容的衍生版本。
-5. 依思路自行实现的**代码**归实现者所有，不受上述条款限制；上述条款约束的是本教程文本本身。
+**例外**：README 中的伪代码片段按 [CC0](https://creativecommons.org/publicdomain/zero/1.0/deed.zh-hans) 提供——实现者可自由复制进自己的项目，无任何附加条件。
 
-联系授权：通过本仓库 Issue 联系作者。
-
-This is a source-available document, not an open-source license. Personal reading and non-commercial implementation of the described architecture are permitted. Commercial use, redistribution, and derivative works of the text require prior written permission from the author.
+The tutorial text is licensed under CC BY-NC-SA 4.0. Pseudocode snippets in README are dedicated to the public domain (CC0) so implementers can use them freely.
