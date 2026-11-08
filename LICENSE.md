@@ -9,6 +9,6 @@
 - **必须**：注明原作者（林潜 / Lentlily22）与出处链接；改编版须说明改动、并以相同许可免费共享。
 - **不可以**：任何商业用途（付费课程、付费专栏、商业产品等）；抹去出处将内容据为己有。
 
-**例外**：README 中的伪代码片段按 [CC0](https://creativecommons.org/publicdomain/zero/1.0/deed.zh-hans) 提供——实现者可自由复制进自己的项目，无任何附加条件。
+**例外**：[`reference/`](./reference/) 目录内的代码采用 **MIT** 许可（见该目录 LICENSE）——可自由使用、修改、再分发，包括商用。
 
-The tutorial text is licensed under CC BY-NC-SA 4.0. Pseudocode snippets in README are dedicated to the public domain (CC0) so implementers can use them freely.
+The tutorial text is licensed under CC BY-NC-SA 4.0. Code under reference/ is MIT-licensed.

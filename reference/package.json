@@ -1,0 +1,14 @@
+{
+  "name": "rolling-summary-reference",
+  "version": "1.0.0",
+  "description": "Minimal runnable reference for hysteresis trimming + seam-stitched rolling summaries",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "express": "^4.22.3"
+  },
+  "license": "MIT"
+}
